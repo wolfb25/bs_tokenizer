@@ -62,49 +62,34 @@
 
  
 	function Search_rekord() {
-		$("tr.xsor").off('click');                          // unbind,
-		$(document).on("click", "tr.xsor", function () {    /* MEG KELL ISMÉTELNI, mert az AJAX eldobja...*/
-			ID = $(this).attr("id");                      // ! ITT A FONTOS VÁLTOZÁS az előző ver-hez képest
-			var r_json = ajax_post("rekord/"+ID, 1 );     // JSON ! console.log(obj_json);
-			var s = `<h3>ID: [${r_json[0].ID_TERMEK}] ${r_json[0].NEV}</h3>
-							<h5>${r_json[0].AR},-Ft ${r_json[0].MENNYISEG} ${r_json[0].MEEGYS}</h5>
-							<p>${r_json[0].LEIRAS}</p>
-							<img class="img-fluid" src="${r_json[0].FOTOLINK}"/>`;
-			$("#rekord1").html(s);            
-		}); 
-			
-		ID = 0;                                                                  // ! reset, nincs kijelölve még egyetlen sor sem...
-		var old_offset =  $('#offset1').val();
-		var url = "tabla?"+$("#form1").serialize()+"&order="+ORDER;              //  console.log( url );
-		var count_json = ajax_post("reccount?"+$("#form1").serialize(), 1) ;     // hány találat van?
-
-		console.log(url);
-
+		ID = 0;
+		var url = "tabla?" + $("#form1").serialize() + "&order=" + ORDER;
+		var count_json = ajax_post("reccount?" + $("#form1").serialize(), 1);
 		var reccount = count_json[0].db | 0;
-		if (reccount > 0) {                                                   // van találat ....
-			var limit =  $('#limit1').val();
-			var offset = Math.floor(reccount / limit) + (reccount % limit > 0? 1 : 0);
-			$('#offset1').empty();
-			var sel = "";
-			for (var i=0; i < offset; ++i) {
-				sel = (i==old_offset? "selected": "");
-				$('#offset1').append(`<option ${sel} value="${i}">${i+1}.lap</option>`);
+		$("#tabla1 tbody").empty();
+		$("#offset").empty();
+		if (reccount > 0) {
+			var limit = $("#limit").val();
+			var offset = Math.floor(reccount / limit) + (reccount % limit > 0 ? 1 : 0);
+			for (var i = 0; i < offset.length; i++) {
+				$("#offset").append(`<option value = "${i}">${i+1}.lap</option>`);
 			}
-			var result = ajax_post(url, 1);   // json
-			$("#tabla1 tbody").empty();          // tábla sorok törlése (fejléc marad)
-			for (var i=0; i < result.length; i++) {
+			var result = ajax_post(url, 1);
+			for (var i = 0; i < result.length; i++) {
 				var s = 
 					`<tr class="xsor table-${i%2==0?'primary':'light'}" id="${result[i].ID_TERMEK}">
-						<td>${result[i].ID_TERMEK}</td>
-						<td>${result[i].NEV}</td>
-						<td>${result[i].AR}</td>
-						<td>${result[i].MENNYISEG}</td>
-						<td>${result[i].MEEGYS}</td>
+					<td>${result[i].ID_TERMEK}</td>
+					<td>${result[i].NEV}</td>
+					<td>${result[i].AR}</td>
+					<td>${result[i].MENNYISEG}</td>
+					<td>${result[i].MEEGYS}</td>
 					<tr>`;
-				$("#tabla1 tbody").append(s);      
+				$("#tabla1 tbody").append(s);   
+				var uzenet = "Összesen " + result.length + " rekord.";
+				$("#toast1 .toast-body").html(uzenet);   
+				$("#toast1").toast("show");
 			}
-			mySend({text:`Összesen ${reccount} termék felel meg a feltételnek.`, tip:"success", mp:3});
-		} else mySend({text:`Nincs a feltételnek megfelelő termék.`, tip:"danger", mp:0});
+		}
 	}
 
 	/*-----------------------------*/
