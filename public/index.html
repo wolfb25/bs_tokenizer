@@ -13,7 +13,13 @@
 
 <script type="text/javascript">
 	var ORDER = 1;
-	var ID = 0;                      
+	var ID = 0;
+
+	function orderby( num ) {
+		ID = 0;
+		ORDER = (ORDER === num) ? num * -1 : num;
+		Search_rekord();
+	}
 
 	/*--------------------------------------------------*/
 	function ajax_get( urlsor, hova, tipus, aszinkron ) {
@@ -67,12 +73,15 @@
 		var count_json = ajax_post("reccount?" + $("#form1").serialize(), 1);
 		var reccount = count_json[0].db | 0;
 		$("#tabla1 tbody").empty();
+		var old_offset = $("#offset1").val();
 		$("#offset").empty();
 		if (reccount > 0) {
 			var limit = $("#limit").val();
 			var offset = Math.floor(reccount / limit) + (reccount % limit > 0 ? 1 : 0);
-			for (var i = 0; i < offset.length; i++) {
-				$("#offset").append(`<option value = "${i}">${i+1}.lap</option>`);
+			var sel = "";
+			for (var i = 0; i < offset; i++) {
+				sel = (i == old_offset ? "selected" : "");
+				$("#offset").append(`<option ${sel} value = "${i}">${i+1}.lap</option>`);
 			}
 			var result = ajax_post(url, 1);
 			for (var i = 0; i < result.length; i++) {
@@ -84,10 +93,8 @@
 					<td>${result[i].MENNYISEG}</td>
 					<td>${result[i].MEEGYS}</td>
 					<tr>`;
-				$("#tabla1 tbody").append(s);   
-				var uzenet = "Összesen " + result.length + " rekord.";
-				$("#toast1 .toast-body").html(uzenet);   
-				$("#toast1").toast("show");
+				mySend({text:`Összesen ${result.length} rekord.`})
+				$("#tabla1 tbody").append(s);
 			}
 		}
 	}
