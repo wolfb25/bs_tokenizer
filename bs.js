@@ -61,10 +61,17 @@ app.post('/kategoria', (req, res) => {  /* ---------- kategoria listadoboz -----
 	Send_to_JSON(req, res, sql);
 });
 
-app.post('/rekord/:id',(req, res) => {
+app.post('/rekord/:id', (req, res) => {
 	var sql = `select * from IT_termekek where ID_TERMEK=${req.params.id}`;
 	Send_to_JSON(req, res, sql);
 });
+
+app.post('/login', (req, res) => {
+	res.set('Content-Type', 'application/json; charset=UTF-8');
+	res.send("hagyma");
+	res.end();
+});
+
 
 function Send_to_JSON (req, res, sql) {
 	conn.query(sql, (error, results) => {
