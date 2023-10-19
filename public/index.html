@@ -122,6 +122,9 @@
 		for (var i = 0; i < k_json.length; ++i) listItems += `<option value='${k_json[i].ID_KATEGORIA}'>${k_json[i].KATEGORIA}</option>`;
 		$("#kategoria1").append(listItems);
 		$("#search_button").click(function() { Search_rekord(); });
+
+		$("#login_button").click(function() { $("#login_modal").modal("show"); });
+
 	});
 
 </script>
@@ -149,6 +152,7 @@
 				<button id="modify_button" type="button" class="btn btn-success me-3"><i class="bi bi-pencil-fill"></i> Módosít</button>
 				<button id="delete_button" type="button" class="btn btn-danger  me-3"><i class="bi bi-trash"></i> Töröl</button>
 				<button id="insert_button" type="button" class="btn btn-warning me-3"><i class="bi bi-plus-circle"></i> Új termék</button>
+				<button id="login_button" type="button" class="btn btn-info me-3"><i class="bi bi-lock"></i> Bejelentkezés</button>
 			</form>
 		</div>
 	</nav>
@@ -259,6 +263,30 @@
 			<div class="modal-footer">
 				<button type="button" class="btn btn-default" data-bs-dismiss="modal">Cancel</button>
 				<button type="button" class="btn btn-success" data-bs-dismiss="modal">OK</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- login modal -->
+<div class="modal" id="login_modal">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header"><h4 class="modal-title">Bejelentkezés</h4></div>
+			<div class="modal-body">
+				<form role="form">
+					<div class="form-group">
+					  <label for="usrname"><span class="glyphicon glyphicon-user"></span> Felhasználónév</label>
+					  <input type="text" class="form-control" placeholder="Írd be az email címed">
+					</div>
+					<div class="form-group">
+					  <label for="psw"><span class="glyphicon glyphicon-eye-open"></span> Jelszó</label>
+					  <input type="text" class="form-control" placeholder="Írd be a jelszavad">
+					</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-bs-dismiss="modal">Cancel</button>
+				<button type="button" class="btn btn-success" data-bs-dismiss="modal">Bejelentkezés</button>
 			</div>
 		</div>
 	</div>
