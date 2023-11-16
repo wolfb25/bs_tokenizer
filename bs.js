@@ -5,10 +5,13 @@
 */
 
 const express = require('express');
+const session = require('express-session');
 const mysql   = require('mysql');
 const app     = express();
 const port    = 3000;
-app.use(express.static('public')); 
+var session_data;
+app.use(express.static('public'));
+app.use(session({ key: 'user_sid', secret: 'brutaltitkos', resave: true, saveUninitialized: true }));
 
 const conn = mysql.createConnection( {
 	host: '10.2.0.20',  /*195.199.230.210 */
@@ -66,11 +69,59 @@ app.post('/rekord/:id', (req, res) => {
 	Send_to_JSON(req, res, sql);
 });
 
-app.post('/login', (req, res) => {
-	res.set('Content-Type', 'application/json; charset=UTF-8');
-	res.send("hagyma");
-	res.end();
+app.post('/logout', (req, res) => { 
+	session_data = req.session;
+	session_data.destroy(function(err) {
+		res.json('Session successfully destroyed');
+		res.end();
+	}); 
 });
+
+app.post('/login', (req, res) => {
+	
+	session_data = req.session;
+	session_data.ID_USER = "10042"
+	session_data.EMAIL   = "Sanyi@email.cim"
+	session_data.NEV     = "Nagyon Sanyi"
+	session_data.MOST    = Date.now();
+	// adatok req-ből, majd mysql szerótól...
+  
+	const response_JSON_data = {
+		id_user: session_data.ID_USER,
+		email: session_data.EMAIL,
+		nev: session_data.NEV,
+		datum: session_data.MOST
+	}; 
+  
+	var sql = 
+	  `SELECT EMAIL, PASSWORD
+		FROM userek
+		WHERE EMAIL="${req.query.usrname}" AND PASSWORD=md5("${req.query.psw}");`;
+	
+	conn.query(sql, (error, results) => {
+		var data = error ? error : JSON.parse(JSON.stringify(results));
+		console.log(sql);  
+		console.log(data); 
+		res.set('Content-Type', 'application/json; charset=UTF-8');
+		res.send(data);
+		res.end();
+	}); 
+});
+
+// app.post('/login', (req, res) => {
+// 	var sql = 
+// 	  `SELECT EMAIL, PASSWORD
+// 		FROM userek
+// 		WHERE EMAIL="${req.query.usrname}" AND PASSWORD=md5("${req.query.psw}");`;
+// 	conn.query(sql, (error, results) => {
+// 		var data = error ? error : JSON.parse(JSON.stringify(results));
+// 		console.log(sql);  
+// 		console.log(data); 
+// 		res.set('Content-Type', 'application/json; charset=UTF-8');
+// 		res.send(data);
+// 		res.end();
+// 	});
+// });
 
 
 function Send_to_JSON (req, res, sql) {
