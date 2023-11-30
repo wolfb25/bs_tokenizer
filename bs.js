@@ -78,50 +78,32 @@ app.post('/logout', (req, res) => {
 });
 
 app.post('/login', (req, res) => {
-	
-	session_data = req.session;
-	session_data.ID_USER = "10042"
-	session_data.EMAIL   = "Sanyi@email.cim"
-	session_data.NEV     = "Nagyon Sanyi"
-	session_data.MOST    = Date.now();
-	// adatok req-ből, majd mysql szerótól...
-  
-	const response_JSON_data = {
-		id_user: session_data.ID_USER,
-		email: session_data.EMAIL,
-		nev: session_data.NEV,
-		datum: session_data.MOST
-	}; 
-  
+	var user = (req.query.usrname?req.query.usrname: "");
+	var psw = (req.query.psw?req.query.psw: "");
 	var sql = 
-	  `SELECT EMAIL, PASSWORD
+		`SELECT ID_USER, NEV, EMAIL
 		FROM userek
-		WHERE EMAIL="${req.query.usrname}" AND PASSWORD=md5("${req.query.psw}");`;
+		WHERE EMAIL="${user}" AND PASSWORD=md5("${psw}")
+		LIMIT 1;`
+	;
 	
-	conn.query(sql, (error, results) => {
-		var data = error ? error : JSON.parse(JSON.stringify(results));
-		console.log(sql);  
-		console.log(data); 
-		res.set('Content-Type', 'application/json; charset=UTF-8');
+	conn.query(sql, null, function (json_data, error) {
+		var data = error ? error : JSON.parse(json_data);
+		if (!error) {
+			if (data.count == 1) {
+				session_data = req.session;
+				session_data.ID_USER = data.dataset[0].ID_USER;
+				session_data.EMAIL = data.dataset[0].EMAIL;
+				session_data.NEV = data.dataset[0].NEV;
+				session_data.MOST = Date.now();
+				console.log(session_data);
+			}
+		}
+		res.set('Content-Type', 'application/json; charset=UTF8')
 		res.send(data);
 		res.end();
 	}); 
 });
-
-// app.post('/login', (req, res) => {
-// 	var sql = 
-// 	  `SELECT EMAIL, PASSWORD
-// 		FROM userek
-// 		WHERE EMAIL="${req.query.usrname}" AND PASSWORD=md5("${req.query.psw}");`;
-// 	conn.query(sql, (error, results) => {
-// 		var data = error ? error : JSON.parse(JSON.stringify(results));
-// 		console.log(sql);  
-// 		console.log(data); 
-// 		res.set('Content-Type', 'application/json; charset=UTF-8');
-// 		res.send(data);
-// 		res.end();
-// 	});
-// });
 
 
 function Send_to_JSON (req, res, sql) {
